@@ -1,1 +1,1 @@
-# Rawnda_Wedding_Management
+# Rwanda_Wedding_Management
