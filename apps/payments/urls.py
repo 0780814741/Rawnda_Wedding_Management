@@ -1,6 +1,0 @@
-from django.urls import path
-
-from . import views
-
-app_name = "payments"
-urlpatterns = [path("webhook/<slug:provider>/", views.provider_webhook, name="webhook")]
