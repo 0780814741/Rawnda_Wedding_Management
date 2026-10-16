@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Log in{% endblock %}
+{% block content %}<div class="card" style="max-width:28rem;margin:2rem auto"><h1 style="margin-top:0">Log in</h1>
+<form method="post" data-loading="Signing in…" novalidate>{% csrf_token %}{% include "partials/form.html" %}
+<input type="hidden" name="next" value="{{ next }}"><button class="btn" type="submit">Log in</button></form>
+<p><a href="{% url 'accounts:password_reset' %}">Forgot your password?</a></p><p>New here? <a href="{% url 'accounts:signup' %}">Create an account</a></p></div>{% endblock %}

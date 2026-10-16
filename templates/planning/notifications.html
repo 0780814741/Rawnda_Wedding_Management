@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}Updates{% endblock %}
+{% block content %}<h1>Updates</h1>
+{% for n in items %}<div class="card" style="margin-bottom:.75rem"><strong>{{ n.title }}</strong>{% if not n.read_at %} <span class="badge badge-warn">new</span>{% endif %}<br><span class="muted small">{{ n.created_at|date:"j M Y H:i" }}</span><p>{{ n.body }}</p>{% if n.url %}<a href="{{ n.url }}">Open</a>{% endif %}</div>
+{% empty %}<div class="empty">No updates yet. We will post news about your plan here.</div>{% endfor %}
+{% if items %}<form method="post">{% csrf_token %}<button class="btn btn-ghost" type="submit">Mark all as read</button></form>{% endif %}
+{% endblock %}

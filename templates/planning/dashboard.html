@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}My weddings{% endblock %}
+{% block content %}<h1>My weddings</h1>
+{% for p in projects %}<article class="card" style="margin-bottom:1rem"><h2><a href="{% if p.is_locked %}{% url 'planning:project_dashboard' p.pk %}{% else %}{% url 'planning:plan' p.pk %}{% endif %}">{{ p.title }}</a> <span class="badge badge-muted">{{ p.get_status_display }}</span></h2>
+<p class="muted">{% if p.wedding_date %}{{ p.wedding_date|date:"j F Y" }} · {% endif %}{% if p.guest_count %}{{ p.guest_count }} guests · {% endif %}{% if p.budget_rwf %}Budget {{ p.budget_rwf|floatformat:"0g" }} RWF{% endif %}</p>
+<a class="btn btn-ghost btn-small" href="{% url 'planning:project_dashboard' p.pk %}">Status &amp; next steps</a>
+{% if not p.is_locked %} <a class="btn btn-small" href="{% url 'planning:plan' p.pk %}">Continue planning</a>{% endif %}</article>
+{% empty %}<div class="empty"><p><strong>You have not started a wedding plan yet.</strong></p><p>It takes about five minutes to set up the basics.</p><a class="btn" href="{% url 'planning:new' %}">Start my plan</a></div>{% endfor %}
+{% if projects %}<p><a class="btn btn-ghost" href="{% url 'planning:new' %}">Plan another wedding</a></p>{% endif %}
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}My account{% endblock %}
+{% block content %}<h1>My account</h1>
+<div class="card"><p><strong>{{ user.display_name }}</strong><br>{{ user.email }}{% if profile.phone %}<br>{{ profile.phone }}{% endif %}</p></div>
+<h2>Delete my data</h2>
+{% if profile.deletion_requested_at %}<div class="alert alert-info">Deletion requested on {{ profile.deletion_requested_at|date:"j M Y" }}. Our team will confirm.</div>
+{% else %}<p>You can ask us to delete your account and wedding data. Records we must keep for accounting are kept without extra personal details.</p>
+<form method="post" action="{% url 'accounts:delete_request' %}" onsubmit="return confirm('Send a deletion request?')">{% csrf_token %}<button class="btn btn-danger" type="submit">Request deletion</button></form>{% endif %}
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}{% load ui %}{% block title %}Your plan{% endblock %}
+{% block content %}
+<h1>{{ project.title }}</h1>
+<p class="muted">{{ project.wedding_date|date:"j F Y" }} · {{ project.get_district_display }} · {{ project.guest_count }} guests · Budget <strong>{{ project.budget_rwf|rwf }}</strong>
+{% if not project.is_locked %} · <a href="{% url 'planning:setup_basics' project.pk %}">Edit setup</a>{% endif %}</p>
+{% include "planning/_steps.html" with step=4 %}
+<div class="alert alert-info">These costs are <strong>estimates</strong> built from vendor package prices using fixed planning rules. Prices marked <em>indicative</em> are not yet confirmed by vendors.</div>
+
+<h2>Services you need</h2>
+<div class="grid grid-2">{% for c, services in required.items %}<div class="card"><h3>{{ c.get_ceremony_type_display }}</h3>
+<ul>{% for s in services %}<li>{{ s.category.name }} {% if s.is_essential %}<span class="badge badge-muted">essential</span>{% endif %}{% if s.is_priority %} <span class="badge badge-ok">priority</span>{% endif %}</li>{% endfor %}</ul></div>{% endfor %}</div>
+
+{% if not project.is_locked %}
+<h2>Choose a plan option</h2>
+{% if options %}<div class="option-tabs">
+{% for o in options %}<article class="card"><h3>{{ o.label }}</h3><p class="muted small">{{ o.description }}</p>
+<p class="small">{% if o.within_budget %}<span class="badge badge-ok">Within budget</span>{% else %}<span class="badge badge-err">Over budget</span>{% endif %}</p>
+<dl class="small"><dt>Vendor subtotal</dt><dd>{{ o.subtotal_rwf|rwf }}</dd><dt>Service fee ({{ fee_percent }}%)</dt><dd>{{ o.fee_rwf|rwf }}</dd><dt>Contingency reserve ({{ contingency_percent }}%)</dt><dd>{{ o.contingency_rwf|rwf }}</dd><dt><strong>Estimated total</strong></dt><dd><strong>{{ o.total_rwf|rwf }}</strong></dd><dt>{% if o.within_budget %}Remaining budget{% else %}Over budget by{% endif %}</dt><dd>{{ o.remaining_rwf|abs_val|rwf }}</dd></dl>
+<details><summary>See what is included ({{ o.items|length }} services)</summary><ul class="small">{% for i in o.items %}<li>{{ i.ceremony|label_of }} · {{ i.category|label_of }}: {{ i.package.vendor_name }}, {{ i.package.name }}: {{ i.line_total_rwf|rwf }}{% if i.package.pricing_unit == "per_guest" %} ({{ i.quantity }} × {{ i.unit_price_rwf|rwf }}){% endif %}{% if i.package.price_status == "indicative" %} <em>(indicative)</em>{% endif %}</li>{% endfor %}</ul></details>
+{% if o.missing %}<p class="small alert alert-warning">No matching approved vendor yet for: {% for c, s, r in o.missing %}{{ s|label_of }} ({{ c|label_of }}){% if not forloop.last %}, {% endif %}{% endfor %}. Our team can source these for you.</p>{% endif %}
+{% if o.trade_offs %}<details><summary>Trade-offs</summary><ul class="small">{% for t in o.trade_offs %}<li>{{ t }}</li>{% endfor %}</ul></details>{% endif %}
+<form method="post" action="{% url 'planning:apply_option' project.pk %}" data-loading="Saving…">{% csrf_token %}<input type="hidden" name="strategy" value="{{ o.strategy }}"><button class="btn" type="submit">Use this option</button></form>
+</article>{% endfor %}</div>
+{% else %}<div class="empty"><p><strong>No vendors are available for your date and place yet.</strong></p><p>You can still send your request. Our team will look for vendors for you.</p></div>{% endif %}
+{% endif %}
+
+<h2>Your current plan</h2>
+{% if has_items %}
+{% for c, items in grouped.items %}<h3>{{ c.get_ceremony_type_display }}</h3>
+<div class="table-wrap"><table><thead><tr><th>Service</th><th>Vendor and package</th><th>Price status</th><th class="num">Amount</th></tr></thead><tbody>
+{% for it in items %}<tr><td>{{ it.category.name }}</td><td>{{ it.vendor_name }}<br><span class="small muted">{{ it.package_name }}{% if it.quantity > 1 %} · {{ it.quantity }} × {{ it.unit_price_rwf|rwf }}{% endif %}</span></td><td>{% price_badge it.price_status it.price_may_be_outdated %}</td><td class="num">{{ it.line_total_rwf|rwf }}</td></tr>{% endfor %}</tbody></table></div>{% endfor %}
+<div class="card" style="margin-top:1rem"><table><tbody>
+<tr><td>Vendor subtotal</td><td class="num">{{ totals.subtotal|rwf }}</td></tr>
+<tr><td>Service fee ({{ fee_percent }}%)</td><td class="num">{{ totals.fee|rwf }}</td></tr>
+<tr><td>Contingency reserve ({{ contingency_percent }}%) <span class="small muted">(a buffer, not billed unless used)</span></td><td class="num">{{ totals.contingency|rwf }}</td></tr>
+<tr class="total"><td>Estimated total</td><td class="num">{{ totals.total|rwf }}</td></tr>
+<tr><td>{% if overall_over %}Over budget by{% else %}Remaining budget{% endif %}</td><td class="num">{{ totals.remaining|abs_val|rwf }}</td></tr></tbody></table></div>
+{% if overall_over %}<div class="alert alert-warning">This plan is over your budget. Try the Budget-friendly option, remove optional services, or ask our team for help.</div>{% endif %}
+{% else %}<div class="empty">Your plan is empty. Pick an option above to fill it.</div>{% endif %}
+
+<p style="margin-top:1.5rem">{% if project.is_locked %}<a class="btn" href="{% url 'planning:project_dashboard' project.pk %}">View status</a>{% else %}<a class="btn" href="{% url 'planning:request_plan' project.pk %}">Send to our planning team</a>{% endif %}</p>
+{% endblock %}

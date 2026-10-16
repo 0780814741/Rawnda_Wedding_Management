@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% load ui %}{% block title %}Send your request{% endblock %}
+{% block content %}<h1>Send your plan to our team</h1>
+<p>Our team will check availability and prices with vendors for you. You do not need to contact or negotiate with vendors. Estimated total in your plan: <strong>{{ totals.total|rwf }}</strong> (indicative until confirmed).</p>
+<form method="post" class="card" data-loading="Sending…" novalidate style="max-width:36rem">{% csrf_token %}{% include "partials/form.html" %}
+<p><a class="btn btn-ghost" href="{% url 'planning:plan' project.pk %}">Back to plan</a> <button class="btn" type="submit">Send request</button></p></form>
+{% endblock %}

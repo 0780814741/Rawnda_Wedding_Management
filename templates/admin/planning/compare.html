@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<p>Rules-based planner output (not AI). Prices come from vendor packages and keep their status. Budget: <strong>RWF {{ project.budget_rwf|default:0 }}</strong>, guests: {{ project.guest_count }}.</p>
+{% for o in options %}
+<div class="module" style="margin-bottom:1.5em">
+  <h2>{{ o.label }} &mdash; {% if o.within_budget %}within budget{% else %}OVER budget{% endif %}</h2>
+  <table style="width:100%">
+    <tr><th>Ceremony</th><th>Service</th><th>Vendor / package</th><th>Line total (RWF)</th><th>Price status</th></tr>
+    {% for i in o.items %}<tr><td>{{ i.ceremony }}</td><td>{{ i.category }}</td><td>{{ i.package.vendor_name }} / {{ i.package.name }}</td><td>{{ i.line_total_rwf }}</td><td>{{ i.package.price_status }}{% if i.package.is_price_stale %} (stale){% endif %}</td></tr>{% endfor %}
+    <tr><td colspan="3"><strong>Subtotal / fee / contingency / total / remaining</strong></td><td colspan="2">{{ o.subtotal_rwf }} / {{ o.fee_rwf }} / {{ o.contingency_rwf }} / {{ o.total_rwf }} / {{ o.remaining_rwf }}</td></tr>
+  </table>
+  {% if o.missing %}<p><strong>No matching vendor:</strong> {% for c, s, r in o.missing %}{{ c }}/{{ s }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+  {% for t in o.trade_offs %}<p>&bull; {{ t }}</p>{% endfor %}
+</div>
+{% empty %}<p>No options could be generated.</p>{% endfor %}
+{% endblock %}

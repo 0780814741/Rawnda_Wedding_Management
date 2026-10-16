@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block title %}Find vendors{% endblock %}
+{% block content %}<h1>Find wedding vendors</h1>
+<form class="filters" method="get" hx-get="{% url 'vendors:list' %}" hx-target="#results" hx-trigger="change, keyup delay:400ms from:input[name=q]" hx-indicator="#loading" hx-push-url="true" aria-label="Filter vendors">
+  <div><label for="q">Search</label><input id="q" type="search" name="q" value="{{ params.q }}"></div>
+  <div><label for="category">Service</label><select id="category" name="category"><option value="">All services</option>{% for c in categories %}<option value="{{ c.slug }}" {% if params.category == c.slug %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+  <div><label for="district">District</label><select id="district" name="district"><option value="">Anywhere in Rwanda</option>{% for v, l in districts %}<option value="{{ v }}" {% if params.district == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div><label for="ceremony">Ceremony</label><select id="ceremony" name="ceremony"><option value="">Any</option>{% for v, l in ceremonies %}<option value="{{ v }}" {% if params.ceremony == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div><label for="guests">Guests</label><input id="guests" type="number" min="1" name="guests" value="{{ params.guests }}" inputmode="numeric"></div>
+  <div><label for="max_price">Max package price (RWF)</label><input id="max_price" type="number" min="0" step="1000" name="max_price" value="{{ params.max_price }}" inputmode="numeric"></div>
+  <div style="align-self:end"><button class="btn" type="submit">Search</button> <span id="loading" class="htmx-indicator muted" role="status">Loading…</span></div>
+</form>
+<div id="results" aria-live="polite">{% include "vendors/_results.html" %}</div>
+<p class="muted small">Prices are indicative until confirmed by the vendor. Vendor contact details are private: our team contacts vendors for you.</p>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}{% load ui %}{% block title %}{{ project.title }}{% endblock %}
+{% block content %}
+<h1>{{ project.title }} <span class="badge badge-muted">{{ project.get_status_display }}</span></h1>
+<div class="card"><h2>Next step</h2><p>{{ next_step }}</p>{% if not project.is_locked %}<a class="btn" href="{% url 'planning:plan' project.pk %}">Continue planning</a>{% else %}<a class="btn btn-ghost" href="{% url 'planning:plan' project.pk %}">View my plan</a>{% endif %}</div>
+
+<h2>Offer from our team</h2>
+{% if quotation %}
+<div class="card">
+  <p>Version {{ quotation.version }} · <span class="badge {% if quotation.status == 'sent' %}badge-warn{% elif quotation.status == 'accepted' %}badge-ok{% else %}badge-muted{% endif %}">{{ quotation.get_status_display }}</span>{% if quotation.valid_until %} · valid until <strong>{{ quotation.valid_until|date:"j M Y" }}</strong>{% endif %}</p>
+  <div class="table-wrap"><table><thead><tr><th>Service</th><th>Vendor</th><th>Price status</th><th class="num">Amount</th></tr></thead><tbody>
+  {% for l in quotation.lines.all %}<tr><td>{{ l.description }}{% if l.ceremony %}<br><span class="small muted">{{ l.ceremony.get_ceremony_type_display }}</span>{% endif %}</td><td>{{ l.vendor_name }}</td><td>{% price_badge l.price_status %}</td><td class="num">{{ l.line_total_rwf|rwf }}</td></tr>{% endfor %}
+  <tr><td colspan="3">Vendor subtotal</td><td class="num">{{ quotation.subtotal_rwf|rwf }}</td></tr>
+  <tr><td colspan="3">Service fee ({{ quotation.fee_percent }}%)</td><td class="num">{{ quotation.fee_rwf|rwf }}</td></tr>
+  <tr class="total"><td colspan="3">Total you are asked to pay</td><td class="num">{{ quotation.payable_total_rwf|rwf }}</td></tr>
+  <tr><td colspan="3" class="muted">Contingency reserve (not billed unless used)</td><td class="num muted">{{ quotation.contingency_rwf|rwf }}</td></tr>
+  <tr><td colspan="3" class="muted">Remaining budget after estimated total</td><td class="num muted">{{ quotation.remaining_budget_rwf|rwf }}</td></tr></tbody></table></div>
+  {% if quotation.notes_for_customer %}<p>{{ quotation.notes_for_customer|linebreaksbr }}</p>{% endif %}
+  {% if quotation.status == "sent" %}
+  <form method="post" action="{% url 'planning:quotation_respond' project.pk quotation.pk %}" style="display:flex;gap:.5rem;flex-wrap:wrap">{% csrf_token %}
+    <button class="btn" name="action" value="accept" type="submit" onclick="return confirm('Accept this offer? Vendors will then be asked to confirm.')">Accept offer</button>
+    <button class="btn btn-ghost" name="action" value="decline" type="submit">Decline / ask for changes</button></form>
+  <p class="small muted">Accepting does not confirm any booking. A booking is confirmed only when the vendor confirms it.</p>
+  {% endif %}
+</div>
+{% else %}<div class="empty">No offer yet. We will notify you here when it is ready.</div>{% endif %}
+
+{% if bookings %}<h2>Bookings</h2><div class="table-wrap"><table><thead><tr><th>Service</th><th>Vendor</th><th>Date</th><th>Status</th><th class="num">Agreed price</th></tr></thead><tbody>
+{% for b in bookings %}<tr><td>{{ b.description }}</td><td>{{ b.vendor_name }}</td><td>{{ b.service_date|date:"j M Y"|default:"—" }}</td><td>{% if b.status == "confirmed" or b.status == "completed" %}<span class="badge badge-ok">{{ b.get_status_display }}</span>{% elif b.status == "cancelled" %}<span class="badge badge-err">{{ b.get_status_display }}</span>{% else %}<span class="badge badge-warn">{{ b.get_status_display }}</span>{% endif %}</td><td class="num">{{ b.agreed_price_rwf|rwf }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+
+{% if invoices %}<h2>Invoices and payments</h2>
+{% for inv in invoices %}<div class="card" style="margin-bottom:1rem"><h3>{{ inv.number }} <span class="badge {% if inv.status == 'paid' %}badge-ok{% else %}badge-warn{% endif %}">{{ inv.get_status_display }}</span></h3>
+<p>Amount: <strong>{{ inv.amount_rwf|rwf }}</strong> · Verified payments: {{ inv.paid_rwf|rwf }} · Outstanding: <strong>{{ inv.outstanding_rwf|rwf }}</strong>{% if inv.due_date %} · Due {{ inv.due_date|date:"j M Y" }}{% endif %}</p>
+{% if inv.status != "paid" and inv.status != "void" %}<div class="alert alert-info"><strong>How to pay</strong><br>{{ inv.instructions|linebreaksbr }}</div>{% endif %}
+{% if inv.payments.all %}<ul class="small">{% for p in inv.payments.all %}<li>{{ p.amount_rwf|rwf }} · {{ p.get_method_display }} · <strong>{{ p.get_status_display }}</strong></li>{% endfor %}</ul>{% endif %}
+<p class="small muted">A payment counts only after our team verifies it. Reporting a payment or returning from a payment page does not confirm it.</p></div>{% endfor %}{% endif %}
+{% endblock %}

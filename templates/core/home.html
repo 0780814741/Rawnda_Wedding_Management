@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Plan your Rwandan wedding without chasing every vendor</h1>
+  <p>Tell us your budget, date, place and ceremonies. We suggest the services you need, show estimated costs in RWF, and our team handles vendor communication, availability and quotations for you.</p>
+  <p><a class="btn" href="{% url 'accounts:signup' %}">Start planning</a> <a class="btn btn-ghost" href="{% url 'core:how_it_works' %}">See how it works</a></p>
+</section>
+<section aria-labelledby="h-what">
+  <h2 id="h-what">What you get</h2>
+  <div class="grid grid-3">
+    <div class="card"><h3>A guided plan</h3><p>Step by step: budget, guests, district and ceremonies such as gusaba, traditional wedding, civil, church and reception.</p></div>
+    <div class="card"><h3>Clear costs</h3><p>Itemised per ceremony with a service fee and a contingency reserve shown separately. Prices are labelled <em>indicative</em> or <em>vendor-confirmed</em>.</p></div>
+    <div class="card"><h3>We talk to vendors</h3><p>You send your plan to our team. We check availability and prices with vendors and send you one offer to review.</p></div>
+  </div>
+</section>
+<section aria-labelledby="h-cat">
+  <h2 id="h-cat">Services we cover</h2>
+  <p>{% for c in categories %}<span class="badge badge-muted">{{ c.name }}</span> {% endfor %}</p>
+  {% if has_vendors %}<p><a href="{% url 'vendors:list' %}">Browse approved vendors</a></p>
+  {% else %}<p class="muted">We are onboarding and verifying vendors. The vendor list will appear here once vendors are approved.</p>{% endif %}
+</section>
+{% if DEBUG_DEMO %}<div class="alert alert-warning">Demo mode: any vendors you see are fictional sample data, not real businesses.</div>{% endif %}
+{% endblock %}

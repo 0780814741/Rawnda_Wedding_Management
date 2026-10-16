@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}Pricing and fees{% endblock %}
+{% block content %}
+<h1>Pricing and fees</h1>
+<p>Using the planner is free. When you accept an offer, the total you pay is:</p>
+<ul><li>the vendors' prices for the services in your offer, plus</li><li>our disclosed <strong>service fee</strong> (currently {{ PLATFORM_SERVICE_FEE_PERCENT }}% of the vendor subtotal).</li></ul>
+<p>Plans also show a <strong>contingency reserve</strong>. It is a suggested buffer for unexpected costs. It is not charged unless it is actually needed and agreed with you.</p>
+<p>We may also receive a commission from vendors for bookings. Human-assisted planning is available as an optional service; its price will be told to you before you agree.</p>
+<p class="muted">Prices on vendor pages and plans are indicative until the vendor confirms them to our team.</p>
+{% endblock %}

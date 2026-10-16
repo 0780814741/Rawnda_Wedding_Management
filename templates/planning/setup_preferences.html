@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}Priorities{% endblock %}
+{% block content %}<h1>What matters most?</h1>{% include "planning/_steps.html" %}
+<p class="muted">Priorities get a larger share of your budget. You can skip this step.</p>
+<form method="post" class="card" data-loading="Building your plan…" novalidate style="max-width:36rem">{% csrf_token %}{% include "partials/form.html" %}
+<p><a class="btn btn-ghost" href="{% url 'planning:setup_ceremonies' project.pk %}">Back</a> <button class="btn" type="submit">See my plan options</button></p></form>
+{% endblock %}

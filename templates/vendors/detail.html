@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% load ui %}{% block title %}{{ vendor.name }}{% endblock %}
+{% block content %}<p><a href="{% url 'vendors:list' %}">&larr; All vendors</a></p>
+<h1>{{ vendor.name }}</h1>
+<p>{% for c in vendor.categories.all %}<span class="badge badge-muted">{{ c.name }}</span> {% endfor %}{% if vendor.is_verified %}<span class="badge badge-ok">Verified by our team{% if vendor.verified_at %} ({{ vendor.verified_at|date:"M Y" }}){% endif %}</span>{% endif %}{% if vendor.is_demo %} <span class="badge badge-err">Demo (fictional)</span>{% endif %}</p>
+<p>{{ vendor.description|linebreaksbr }}</p>
+<p class="small muted"><strong>Serves:</strong> {% for a in vendor.service_areas.all %}{{ a.get_district_display }}{% if not forloop.last %}, {% endif %}{% empty %}Not listed yet{% endfor %}</p>
+{% if vendor.public_contact_approved %}<p>Contact: {{ vendor.contact_phone }} {{ vendor.contact_email }}</p>{% else %}<p class="small muted">Contact details are private. Add this vendor to your plan and our team will contact them for you.</p>{% endif %}
+{% if media %}<h2>Portfolio</h2><div class="gallery">{% for m in media %}<img src="{{ m.image.url }}" alt="{{ m.alt_text|default:m.caption|default:vendor.name }}" loading="lazy">{% endfor %}</div>{% endif %}
+<h2>Packages</h2>
+{% for p in packages %}<article class="card" style="margin-bottom:1rem"><h3>{{ p.name }} <small class="muted">({{ p.category.name }})</small></h3>
+<p><strong>RWF {{ p.price_rwf|floatformat:"0g" }}{% if p.pricing_unit == "per_guest" %} per guest{% endif %}</strong> {% price_badge p.price_status p.is_price_stale %}</p>
+<p>{{ p.description|linebreaksbr }}</p>
+<p class="small muted">Capacity: {{ p.min_guests }}{% if p.max_guests %}–{{ p.max_guests }}{% else %}+{% endif %} guests{% if p.last_price_verified_at %} · price last checked {{ p.last_price_verified_at|date:"j M Y" }}{% endif %}</p>
+{% if p.inclusions.all %}<div class="grid grid-2"><div><strong>Included</strong><ul>{% for i in p.inclusions.all %}{% if i.is_included %}<li>{{ i.description }}</li>{% endif %}{% endfor %}</ul></div><div><strong>Not included</strong><ul>{% for i in p.inclusions.all %}{% if not i.is_included %}<li>{{ i.description }}</li>{% endif %}{% endfor %}</ul></div></div>{% endif %}
+{% if p.addons.all %}<p><strong>Add-ons:</strong> {% for a in p.addons.all %}{{ a.name }} (+RWF {{ a.price_rwf|floatformat:"0g" }}){% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+</article>{% empty %}<div class="empty">No packages published yet.</div>{% endfor %}
+<p><a class="btn" href="{% url 'planning:new' %}">Plan my wedding</a></p>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ SITE_NAME }}{% endblock %} | {{ SITE_NAME }}</title>
+<meta name="description" content="{% block description %}Plan your Rwandan wedding with a clear budget, trusted vendors and a team that handles the vendor conversations for you.{% endblock %}">
+<link rel="stylesheet" href="{% static 'css/site.css' %}">
+<script src="{% static 'js/htmx.min.js' %}" defer></script>
+<script src="{% static 'js/site.js' %}" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="{% url 'core:home' %}">{{ SITE_NAME }}</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav" type="button">Menu</button>
+    <nav id="nav" class="nav" aria-label="Main">
+      <a href="{% url 'vendors:list' %}">Find vendors</a>
+      <a href="{% url 'core:how_it_works' %}">How it works</a>
+      <a href="{% url 'core:pricing' %}">Pricing &amp; fees</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'planning:dashboard' %}">My weddings</a>
+        <a href="{% url 'planning:notifications' %}">Updates{% if unread_notifications %} <span class="count">{{ unread_notifications }}</span>{% endif %}</a>
+        <a href="{% url 'accounts:account' %}">Account</a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="inline">{% csrf_token %}<button class="linklike" type="submit">Log out</button></form>
+      {% else %}
+        <a href="{% url 'accounts:login' %}">Log in</a>
+        <a class="btn btn-small" href="{% url 'accounts:signup' %}">Start planning</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+{% if messages %}<div class="wrap messages" aria-live="polite">{% for m in messages %}<div class="alert alert-{{ m.level_tag|default:'info' }}">{{ m }}</div>{% endfor %}</div>{% endif %}
+<main id="main" class="wrap">{% block content %}{% endblock %}</main>
+<footer class="site-footer"><div class="wrap">
+  <p>{{ SITE_NAME }} helps couples plan weddings in Rwanda. Prices shown are <strong>indicative</strong> until confirmed by the vendor. A booking is only confirmed when the vendor confirms it.</p>
+  <p><a href="{% url 'core:privacy' %}">Privacy</a> · <a href="{% url 'core:pricing' %}">Pricing &amp; fees</a>{% if SUPPORT_PHONE %} · Help: {{ SUPPORT_PHONE }}{% endif %}</p>
+</div></footer>
+</body>
+</html>

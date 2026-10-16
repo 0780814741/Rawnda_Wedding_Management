@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Ceremonies{% endblock %}
+{% block content %}<h1>Which ceremonies are you planning?</h1>{% include "planning/_steps.html" %}
+<form method="post" class="card" data-loading="Saving…" novalidate style="max-width:36rem">{% csrf_token %}{% include "partials/form.html" %}
+<p><a class="btn btn-ghost" href="{% url 'planning:setup_basics' project.pk %}">Back</a> <button class="btn" type="submit">Continue</button></p></form>
+{% endblock %}

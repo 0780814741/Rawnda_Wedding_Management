@@ -1,0 +1,9 @@
+{% if vendors %}
+<div class="grid grid-2">{% for v in vendors %}
+<article class="card"><h3><a href="{% url 'vendors:detail' v.slug %}">{{ v.name }}</a></h3>
+<p>{% for c in v.categories.all %}<span class="badge badge-muted">{{ c.name }}</span> {% endfor %}</p>
+<p class="small muted">{% for a in v.service_areas.all|slice:":4" %}{{ a.get_district_display }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+{% if v.from_price is not None %}<p><strong>From RWF {{ v.from_price|floatformat:"0g" }}</strong> <span class="badge badge-warn">indicative</span></p>{% endif %}
+{% if v.is_verified %}<span class="badge badge-ok">Verified by our team</span>{% endif %}{% if v.is_demo %} <span class="badge badge-err">Demo (fictional)</span>{% endif %}
+</article>{% endfor %}</div>
+{% else %}<div class="empty"><p><strong>No vendors match yet.</strong></p><p>Try removing a filter. We are still onboarding vendors, so some districts and services may be empty.</p></div>{% endif %}
